@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "991354765232",
+    "project_id": "pm25-app-ccfff",
+    "storage_bucket": "pm25-app-ccfff.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:991354765232:android:259238cd8c8136acd8e075",
+        "android_client_info": {
+          "package_name": "com.example.pm25_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHp1TuSAYJO4SYTCsBuYaG-HqdqcenXgM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
