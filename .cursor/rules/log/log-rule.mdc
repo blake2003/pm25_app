@@ -1,0 +1,362 @@
+# 除錯日誌規範
+
+## 📋 概述
+
+本文件定義了 PM25 應用程式的除錯日誌使用規範，確保開發過程中能夠有效追蹤問題、監控應用程式狀態，並提供清晰的除錯資訊。
+
+**核心原則：**
+- 依照情況選擇 "pm25_app/lib/core/loggers"中的檔案進行除錯
+- 使用統一的 `AppLogger` 進行日誌記錄
+- 簡短描述問題，便於快速定位
+- 適當使用日誌層級，避免過度記錄
+- 支援開發和生產環境的不同日誌策略
+
+## 🎯 日誌系統架構
+
+### 1. 日誌層級定義
+
+```dart
+// 使用 AppLogger 進行統一日誌管理
+class AppLogger {
+  // 快捷方法
+  void d(Object? msg) => _logger.fine(msg);      // DEBUG
+  void i(Object? msg) => _logger.info(msg);      // INFO  
+  void w(Object? msg) => _logger.warning(msg);   // WARNING
+  void e(Object? msg, [Object? err, StackTrace? st]) => _logger.severe(msg, err, st); // ERROR
+}
+```
+
+### 2. 日誌層級使用指南
+
+| 層級 | 使用場景 | 範例 |
+|------|----------|------|
+| **DEBUG** | 詳細的除錯資訊，僅開發環境 | `log.d('API 請求參數: $params')` |
+| **INFO** | 一般資訊，記錄重要操作 | `log.i('用戶登入成功: ${user.email}')` |
+| **WARNING** | 警告資訊，可能影響功能 | `log.w('網路連線緩慢，重試中...')` |
+| **ERROR** | 錯誤資訊，需要關注 | `log.e('API 請求失敗', error, stackTrace)` |
+
+## 📝 日誌使用規範
+
+### 1. 基本使用原則
+
+```dart
+// ✅ 正確：使用 AppLogger 進行日誌記錄
+class DataService {
+  final log = AppLogger('DataService');
+  
+  Future<void> fetchData() async {
+    try {
+      log.i('開始獲取資料');
+      // 實作邏輯
+      log.i('資料獲取成功: ${data.length} 筆');
+    } catch (e, stack) {
+      log.e('資料獲取失敗', e, stack);
+    }
+  }
+}
+```
+
+### 2. 日誌命名規範
+
+```dart
+// ✅ 正確：使用有意義的 Logger 名稱
+final log = AppLogger('AuthService');        // 認證服務
+final log = AppLogger('AQIProvider');        // AQI 提供者
+final log = AppLogger('NewsRepository');     // 新聞儲存庫
+final log = AppLogger('HomeScreen');         // 首頁畫面
+
+// ❌ 錯誤：避免使用無意義的名稱
+final log = AppLogger('test');
+final log = AppLogger('123');
+```
+
+### 3. 日誌內容規範
+
+#### 3.1 訊息格式
+```dart
+// ✅ 正確：簡潔明瞭的訊息
+log.i('用戶登入成功');
+log.w('網路連線超時，重試中...');
+log.e('API 請求失敗: 401 Unauthorized');
+
+// ❌ 錯誤：過於冗長或無意義的訊息
+log.i('這是一個非常長的日誌訊息，包含了太多不必要的資訊...');
+log.d('test');
+```
+
+#### 3.2 變數記錄
+```dart
+// ✅ 正確：記錄關鍵變數
+log.i('載入用戶資料: ${user.id}');
+log.d('API 參數: $params');
+log.w('重試次數: $retryCount');
+
+// ✅ 正確：使用結構化記錄
+log.i('資料載入完成', {
+  'count': data.length,
+  'timestamp': DateTime.now().toIso8601String(),
+  'source': 'cache'
+});
+```
+
+### 4. 錯誤日誌規範
+
+#### 4.1 異常處理
+```dart
+// ✅ 正確：完整的錯誤記錄
+try {
+  await apiService.fetchData();
+} catch (e, stack) {
+  log.e('API 請求失敗', e, stack);
+  // 處理錯誤
+}
+
+// ✅ 正確：包含上下文資訊
+try {
+  final result = await apiService.fetchAQIData(siteId);
+  log.i('AQI 資料獲取成功: ${result.length} 筆');
+} catch (e, stack) {
+  log.e('AQI 資料獲取失敗 - 站點ID: $siteId', e, stack);
+  rethrow;
+}
+```
+
+#### 4.2 錯誤分類
+```dart
+// 網路錯誤
+log.e('網路連線失敗', error, stackTrace);
+
+// 資料解析錯誤
+log.e('JSON 解析失敗', error, stackTrace);
+
+// 認證錯誤
+log.e('用戶認證失敗', error, stackTrace);
+
+// 業務邏輯錯誤
+log.e('資料驗證失敗', error, stackTrace);
+```
+
+## 🔧 除錯技巧
+
+### 1. 方法進入/退出追蹤
+
+```dart
+class DataService {
+  final log = AppLogger('DataService');
+  
+  Future<List<AQIRecord>> fetchRecentData() async {
+    log.d('進入 fetchRecentData 方法');
+    
+    try {
+      final data = await _fetchFromAPI();
+      log.d('fetchRecentData 完成，返回 ${data.length} 筆資料');
+      return data;
+    } catch (e, stack) {
+      log.e('fetchRecentData 失敗', e, stack);
+      rethrow;
+    }
+  }
+}
+```
+
+### 2. 狀態變更追蹤
+
+```dart
+class AQIProvider extends ChangeNotifier {
+  final log = AppLogger('AQIProvider');
+  
+  void updateAQIData(List<AQIRecord> newData) {
+    log.d('狀態更新: ${_data.length} -> ${newData.length} 筆資料');
+    _data = newData;
+    notifyListeners();
+    log.i('AQI 資料已更新並通知監聽者');
+  }
+}
+```
+
+### 3. 效能監控
+
+```dart
+class PerformanceLogger {
+  final log = AppLogger('Performance');
+  
+  Future<T> measureTime<T>(String operation, Future<T> Function() task) async {
+    final stopwatch = Stopwatch()..start();
+    
+    try {
+      final result = await task();
+      stopwatch.stop();
+      log.i('$operation 完成，耗時: ${stopwatch.elapsedMilliseconds}ms');
+      return result;
+    } catch (e, stack) {
+      stopwatch.stop();
+      log.e('$operation 失敗，耗時: ${stopwatch.elapsedMilliseconds}ms', e, stack);
+      rethrow;
+    }
+  }
+}
+```
+
+## 🎨 日誌格式範例
+
+### 1. 標準日誌格式
+
+```
+[INFO] 14:30:25.123 DataService: 開始獲取 AQI 資料
+[DEBUG] 14:30:25.124 DataService: API 請求參數: {"siteId": "001"}
+[INFO] 14:30:25.456 DataService: AQI 資料獲取成功: 24 筆
+[WARNING] 14:30:25.457 DataService: 網路連線緩慢，重試中...
+[ERROR] 14:30:25.789 DataService: API 請求失敗: 500 Internal Server Error
+```
+
+### 2. 錯誤日誌格式
+
+```
+[ERROR] 14:30:25.789 DataService: API 請求失敗
+Exception: HttpException: 500 Internal Server Error
+Stack Trace:
+#0 _rootRunUnary (dart:async/zone.dart:1362:47)
+#1 _CustomZone.runUnary (dart:async/zone.dart:1265:19)
+#2 _FutureListener.handleValue (dart:async/future_impl.dart:131:9)
+```
+
+## 🚀 最佳實踐
+
+### 1. 日誌層級選擇
+
+```dart
+// ✅ 正確：根據重要性選擇適當層級
+log.d('詳細的除錯資訊');           // 僅開發環境
+log.i('重要的業務操作');           // 所有環境
+log.w('需要注意的警告');           // 所有環境
+log.e('需要立即處理的錯誤');       // 所有環境
+```
+
+### 2. 避免過度記錄
+
+```dart
+// ❌ 錯誤：過度記錄
+for (int i = 0; i < 1000; i++) {
+  log.d('處理第 $i 個項目');  // 會產生大量日誌
+}
+
+// ✅ 正確：適當記錄
+for (int i = 0; i < 1000; i++) {
+  if (i % 100 == 0) {
+    log.d('已處理 $i 個項目');  // 每 100 個記錄一次
+  }
+  // 處理邏輯
+}
+log.i('批量處理完成: 1000 個項目');
+```
+
+### 3. 敏感資訊處理
+
+```dart
+// ❌ 錯誤：記錄敏感資訊
+log.i('用戶密碼: $password');
+log.d('API 金鑰: $apiKey');
+
+// ✅ 正確：遮蔽敏感資訊
+log.i('用戶登入: ${user.email}');
+log.d('API 請求: ${apiKey.substring(0, 8)}...');
+```
+
+## 🔍 除錯工具
+
+### 1. 全域錯誤處理
+
+```dart
+// 在 main.dart 中設置
+void main() {
+  AppLogger.init();
+  setupGlobalErrorHandlers();
+  runApp(MyApp());
+}
+
+// 全域錯誤處理
+void setupGlobalErrorHandlers() {
+  final log = AppLogger('GlobalError');
+  
+  FlutterError.onError = (FlutterErrorDetails details) {
+    log.e('未處理的 Flutter 錯誤', details.exception, details.stack);
+  };
+}
+```
+
+### 2. 效能監控工具
+
+```dart
+class DebugTools {
+  static final log = AppLogger('DebugTools');
+  
+  static void logMemoryUsage() {
+    log.i('記憶體使用情況: ${ProcessInfo.currentRss} bytes');
+  }
+  
+  static void logWidgetRebuild(String widgetName) {
+    log.d('Widget 重建: $widgetName');
+  }
+}
+```
+
+## 📊 日誌分析
+
+### 1. 常見錯誤模式
+
+```dart
+// 網路錯誤模式
+log.e('網路連線失敗', error, stackTrace);
+
+// 資料解析錯誤模式
+log.e('JSON 解析失敗', error, stackTrace);
+
+// 狀態管理錯誤模式
+log.e('Provider 狀態更新失敗', error, stackTrace);
+```
+
+### 2. 效能瓶頸識別
+
+```dart
+// 識別慢操作
+log.i('資料庫查詢開始');
+// ... 查詢操作
+log.i('資料庫查詢完成，耗時: ${stopwatch.elapsedMilliseconds}ms');
+```
+
+## 🎯 檢查清單
+
+### 開發前
+- [ ] 確認日誌系統已初始化
+- [ ] 選擇適當的 Logger 名稱
+- [ ] 規劃日誌層級使用策略
+
+### 開發中
+- [ ] 在關鍵方法中加入日誌
+- [ ] 記錄重要的狀態變更
+- [ ] 適當處理異常並記錄錯誤
+- [ ] 避免記錄敏感資訊
+
+### 開發後
+- [ ] 檢查日誌輸出是否清晰
+- [ ] 確認錯誤日誌包含足夠資訊
+- [ ] 驗證日誌不會影響效能
+- [ ] 測試不同環境的日誌行為
+
+## 📚 相關文件
+
+- **日誌系統實作**: `lib/core/loggers/log.dart`
+- **錯誤處理**: `lib/core/loggers/error_handler.dart`
+- **全域錯誤處理**: `lib/main.dart`
+
+---
+
+**最後更新**: 2025年08月  
+**版本**: 1.0.0  
+**適用範圍**: PM25 應用程式除錯日誌規範 
+
+
+alwaysApply: true
+---
+if need to use debug print, use [log.dart](mdc:lib/core/loggers/log.dart) 
+

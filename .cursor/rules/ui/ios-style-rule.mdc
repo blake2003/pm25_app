@@ -1,0 +1,455 @@
+---
+alwaysApply: false
+---
+
+# iOS 風格設計規範
+
+## 📱 核心設計原則
+
+本文件定義了 PM25 應用程式的 iOS 風格設計規範，確保應用程式提供優秀的使用者體驗。
+
+**核心設計原則：**
+- **靈活選擇 UI 框架**：可選擇 Cupertino、Material Design 或混合使用
+- **以使用者體驗為中心**：優先考慮功能性和易用性
+- **保持設計一致性**：無論選擇哪種框架，都要保持整體設計的一致性
+- **響應式設計**：適配不同 iOS 裝置和螢幕尺寸
+- **適當使用卡片式設計**：不要過度使用，保持簡潔
+
+## 🎨 UI 框架選擇策略
+
+### 1. 框架選擇原則
+```dart
+// ✅ 靈活選擇：根據功能需求選擇最適合的框架
+// 選項 1：純 Cupertino 風格
+import 'package:flutter/cupertino.dart';
+
+// 選項 2：純 Material Design 風格  
+import 'package:flutter/material.dart';
+
+// 選項 3：混合使用（推薦）
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+```
+
+### 2. 混合使用策略
+```dart
+// ✅ 推薦：根據不同頁面需求選擇最適合的框架
+class FlexibleDesignScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('空氣品質'),
+        // 使用 Material Design 的 AppBar，但保持 iOS 風格
+        backgroundColor: CupertinoColors.systemBackground,
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // 使用 Cupertino 風格的卡片
+            _buildCupertinoCard(),
+            // 使用 Material Design 的列表
+            _buildMaterialList(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+### 3. 框架選擇指南
+
+| 功能類型 | 推薦框架 | 原因 |
+|---------|---------|------|
+| 導航和頁面結構 | Material Design | 更靈活的佈局選項 |
+| 表單輸入 | Cupertino | iOS 原生輸入體驗 |
+| 列表和卡片 | 混合使用 | 根據內容複雜度選擇 |
+| 對話框和彈窗 | Cupertino | iOS 原生對話體驗 |
+| 按鈕和互動 | 混合使用 | 根據上下文選擇 |
+
+## 🎨 色彩系統
+
+### 1. 統一色彩定義
+```dart
+// ✅ 統一色彩系統，支援多種框架
+class AppColors {
+  // 主要色彩 - 支援 Material 和 Cupertino
+  static const primary = Color(0xFF007AFF); // iOS Blue
+  static const success = Color(0xFF34C759); // iOS Green
+  static const warning = Color(0xFFFF9500); // iOS Orange
+  static const error = Color(0xFFFF3B30);   // iOS Red
+  
+  // 背景色彩
+  static const background = Color(0xFFF2F2F7); // iOS Light Gray
+  static const cardBackground = Color(0xFFFFFFFF);
+  
+  // 文字色彩
+  static const primaryText = Color(0xFF000000);
+  static const secondaryText = Color(0xFF8E8E93);
+  
+  // AQI 色彩對應
+  static Color getAqiColor(double pm25) {
+    if (pm25 <= 12) return success;
+    if (pm25 <= 35.4) return warning;
+    if (pm25 <= 55.4) return Color(0xFFFF6B35); // 深橙色
+    if (pm25 <= 150.4) return error;
+    return Color(0xFFAF52DE); // 紫色
+  }
+}
+```
+
+### 2. 深色模式支援
+```dart
+// ✅ 支援深色模式的色彩系統
+class AppTheme {
+  static ThemeData get lightTheme => ThemeData(
+    primaryColor: AppColors.primary,
+    scaffoldBackgroundColor: AppColors.background,
+    cardColor: AppColors.cardBackground,
+    textTheme: TextTheme(
+      bodyText1: TextStyle(color: AppColors.primaryText),
+      bodyText2: TextStyle(color: AppColors.secondaryText),
+    ),
+  );
+  
+  static CupertinoThemeData get cupertinoLightTheme => CupertinoThemeData(
+    primaryColor: AppColors.primary,
+    scaffoldBackgroundColor: AppColors.background,
+    textTheme: CupertinoTextThemeData(
+      textStyle: TextStyle(color: AppColors.primaryText),
+    ),
+  );
+}
+```
+
+## 📝 字體系統
+
+### 1. 統一字體定義
+```dart
+// ✅ 統一字體系統，支援多種框架
+class AppTypography {
+  // 主要字體
+  static const String fontFamily = 'SF Pro Display'; // iOS 系統字體
+  
+  // 字體大小和權重
+  static TextStyle get largeTitle => TextStyle(
+    fontSize: 34, fontWeight: FontWeight.w700, fontFamily: fontFamily);
+  
+  static TextStyle get title1 => TextStyle(
+    fontSize: 28, fontWeight: FontWeight.w600, fontFamily: fontFamily);
+  
+  static TextStyle get headline => TextStyle(
+    fontSize: 17, fontWeight: FontWeight.w600, fontFamily: fontFamily);
+  
+  static TextStyle get body => TextStyle(
+    fontSize: 17, fontWeight: FontWeight.w400, fontFamily: fontFamily);
+  
+  static TextStyle get caption => TextStyle(
+    fontSize: 12, fontWeight: FontWeight.w400, fontFamily: fontFamily);
+}
+```
+
+### 2. 字體使用原則
+- **一致性**：整個應用使用統一的字體系統
+- **層級分明**：使用不同字體大小建立視覺層級
+- **可讀性**：確保文字在不同背景下都清晰可讀
+- **動態字體**：支援系統動態字體大小設定
+
+## 📱 響應式設計
+
+### 1. 裝置適配
+```dart
+// ✅ 響應式設計，支援多種框架
+class ResponsiveDesign {
+  static Widget buildResponsiveLayout(BuildContext context, {
+    required Widget mobileLayout,
+    required Widget tabletLayout,
+    Widget? desktopLayout,
+  }) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    if (screenWidth > 1024 && desktopLayout != null) {
+      return desktopLayout;
+    } else if (screenWidth > 768) {
+      return tabletLayout;
+    } else {
+      return mobileLayout;
+    }
+  }
+  
+  static bool isIPad(BuildContext context) {
+    return MediaQuery.of(context).size.width > 768;
+  }
+}
+```
+
+### 2. 佈局原則
+- **iPhone 適配**：針對不同 iPhone 螢幕尺寸優化
+- **iPad 適配**：利用 iPad 大螢幕提供更好的多欄位佈局
+- **橫豎屏支援**：確保在旋轉時保持良好的使用者體驗
+- **安全區域**：正確處理劉海屏和底部指示器
+
+## 🎨 元件設計
+
+### 1. 卡片設計
+```dart
+// ✅ 統一的卡片設計，支援多種框架
+class AppCard extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry? padding;
+  final Color? backgroundColor;
+  final double? elevation;
+  final double? borderRadius;
+  
+  const AppCard({
+    Key? key,
+    required this.child,
+    this.margin,
+    this.padding,
+    this.backgroundColor,
+    this.elevation = 2.0,
+    this.borderRadius = 12.0,
+  }) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
+    // 可選擇 Material 或 Cupertino 風格
+    return Container(
+      margin: margin ?? EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: backgroundColor ?? AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(borderRadius!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: elevation!,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: padding ?? EdgeInsets.all(16),
+        child: child,
+      ),
+    );
+  }
+}
+```
+
+### 2. 按鈕設計
+```dart
+// ✅ 統一的按鈕設計
+class AppButton extends StatelessWidget {
+  final String text;
+  final VoidCallback? onPressed;
+  final ButtonType type;
+  final bool isLoading;
+  
+  const AppButton({
+    Key? key,
+    required this.text,
+    this.onPressed,
+    this.type = ButtonType.primary,
+    this.isLoading = false,
+  }) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
+    // 可選擇 Material 或 Cupertino 按鈕
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isLoading ? null : onPressed,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          decoration: BoxDecoration(
+            color: _getButtonColor(),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isLoading) ...[
+                SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+                SizedBox(width: 8),
+              ],
+              Text(
+                text,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  Color _getButtonColor() {
+    switch (type) {
+      case ButtonType.primary:
+        return AppColors.primary;
+      case ButtonType.secondary:
+        return AppColors.secondaryText;
+      case ButtonType.success:
+        return AppColors.success;
+      case ButtonType.error:
+        return AppColors.error;
+    }
+  }
+}
+
+enum ButtonType { primary, secondary, success, error }
+```
+
+## ⏳ 狀態處理
+
+### 1. 載入狀態
+```dart
+// ✅ 統一的載入狀態設計
+class AppLoadingWidget extends StatelessWidget {
+  final String? message;
+  
+  const AppLoadingWidget({Key? key, this.message}) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // 可選擇 Material 或 Cupertino 載入指示器
+          CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+          ),
+          if (message != null) ...[
+            SizedBox(height: 16),
+            Text(
+              message!,
+              style: AppTypography.body,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+```
+
+### 2. 錯誤狀態
+```dart
+// ✅ 統一的錯誤狀態設計
+class AppErrorWidget extends StatelessWidget {
+  final String error;
+  final VoidCallback? onRetry;
+  
+  const AppErrorWidget({
+    Key? key,
+    required this.error,
+    this.onRetry,
+  }) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 48,
+            color: AppColors.error,
+          ),
+          SizedBox(height: 16),
+          Text(
+            error,
+            style: AppTypography.body,
+            textAlign: TextAlign.center,
+          ),
+          if (onRetry != null) ...[
+            SizedBox(height: 16),
+            AppButton(
+              text: '重試',
+              onPressed: onRetry,
+              type: ButtonType.primary,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+```
+
+## 🔄 設計迭代
+
+### 1. 反饋收集與改進
+- **使用者反饋**：收集使用者意見和建議
+- **數據分析**：追蹤使用者行為和使用模式
+- **快速原型**：使用 Flutter 快速建立原型
+- **A/B 測試**：比較不同設計方案
+- **持續改進**：根據反饋持續優化設計
+
+### 2. 版本控制
+- **設計變更追蹤**：記錄每次設計變更
+- **決策文檔**：記錄設計決策和原因
+- **規範更新**：定期更新設計規範
+
+## 📋 設計檢查清單
+
+### 開發前
+- [ ] 選擇適合的 UI 框架（Material/Cupertino/混合）
+- [ ] 設計統一的色彩系統
+- [ ] 規劃響應式佈局
+- [ ] 定義字體系統
+
+### 開發中
+- [ ] 保持設計一致性
+- [ ] 支援深色模式
+- [ ] 處理安全區域和邊距
+- [ ] 提供適當的載入和錯誤狀態
+- [ ] 確保無障礙功能
+
+### 開發後
+- [ ] 在不同 iOS 裝置上測試
+- [ ] 驗證深色模式顯示
+- [ ] 檢查無障礙功能
+- [ ] 收集使用者反饋
+- [ ] 進行性能優化
+
+## 🎯 最佳實踐
+
+### 1. 框架選擇建議
+- **新功能開發**：優先考慮 Material Design，提供更多自定義選項
+- **iOS 原生體驗**：特定功能使用 Cupertino widgets
+- **混合使用**：根據頁面需求靈活選擇
+
+### 2. 性能優化
+- **元件重用**：建立可重用的元件庫
+- **懶加載**：使用 ListView.builder 等懶加載元件
+- **圖片優化**：使用適當的圖片格式和大小
+
+### 3. 可維護性
+- **模組化設計**：將 UI 元件模組化
+- **統一命名**：使用一致的命名規範
+- **文檔記錄**：為複雜元件提供文檔
+
+---
+
+**最後更新**: 2025年07月  
+**版本**: 2.0.0  
+**適用範圍**: PM25 應用程式靈活設計規範 

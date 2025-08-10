@@ -1,10 +1,12 @@
 // lib/routes.dart
 import 'package:flutter/material.dart';
-import 'package:pm25_app/ui/screens/auth_screens/forgot_password_screen.dart';
-import 'package:pm25_app/ui/screens/auth_screens/sign_in_screen.dart';
-import 'package:pm25_app/ui/screens/auth_screens/sign_up_screen.dart';
-import 'package:pm25_app/ui/screens/guide_screen/guide_screen.dart';
-import 'package:pm25_app/ui/screens/home_screen.dart';
+import 'package:pm25_app/ui/screens/auth/forgot_password_screen.dart';
+import 'package:pm25_app/ui/screens/auth/sign_in_screen.dart';
+import 'package:pm25_app/ui/screens/auth/sign_up_screen.dart';
+import 'package:pm25_app/ui/screens/guide/guide_page.dart';
+import 'package:pm25_app/ui/screens/main/home_screen.dart';
+import 'package:pm25_app/ui/screens/main/pages/aqi_data_page.dart';
+import 'package:pm25_app/ui/screens/news/news_screen.dart';
 
 // 假設 HomePage1…HomePage30 各自存在對應檔案
 
@@ -19,6 +21,8 @@ abstract class AppRoutes {
   static const forgotPassword = '/forgot_password';
   static const home = '/home';
   static const guide = '/guide';
+  static const news = '/news';
+  static const aqiData = '/aqi_data';
 }
 
 /// Route 表
@@ -29,5 +33,7 @@ final Map<String, WidgetBuilder> appRouteTable = {
   AppRoutes.forgotPassword: (_) => const ForgotPasswordScreen(),
   AppRoutes.home: (_) => const HomeScreen(),
   AppRoutes.guide: (_) => const GuideScreen(),
+  AppRoutes.news: (_) => const NewsScreen(),
+  AppRoutes.aqiData: (_) => const AqiDataPage(),
   // … 其他 homePageN
 };

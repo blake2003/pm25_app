@@ -6,9 +6,8 @@ class AppLogger {
   factory AppLogger(String name) =>
       _cache.putIfAbsent(name, () => AppLogger._internal(name));
 
-  AppLogger._internal(this._name) : _logger = Logger(_name);
+  AppLogger._internal(String name) : _logger = Logger(name);
 
-  final String _name;
   final Logger _logger;
 
   /* ------------------------------------------------------------------ */
@@ -32,25 +31,22 @@ class AppLogger {
     Logger.root.level = kDebugMode ? Level.ALL : Level.WARNING;
     hierarchicalLoggingEnabled = true;
 
-    // ---------- ❶ 建立各層級對應的彩色筆 ----------
-    final levelPens = {
-      Level.FINE: AnsiPen()..blue(),
-      Level.INFO: AnsiPen()..green(),
-      Level.WARNING: AnsiPen()..yellow(bold: true),
-      Level.SEVERE: AnsiPen()..red(bold: true),
-      Level.SHOUT: AnsiPen()..red(bg: true, bold: true),
-    };
+    // 測試 ANSI 顏色支援
+    print('=== 日誌系統初始化 ===');
+    print('kDebugMode: $kDebugMode');
+    print('ansiColorDisabled: $ansiColorDisabled');
+    print('日誌層級: ${kDebugMode ? 'ALL' : 'WARNING'}');
+    print('========================');
 
     // ---------- ❷ 監聽日誌 ----------
     Logger.root.onRecord.listen((rec) {
-      ansiColorDisabled = !kDebugMode;
-      final time = rec.time.toIso8601String().substring(11, 23); // HH:mm:ss.SSS
-      final pen = levelPens[rec.level] ?? AnsiPen();
-      final line = pen('[${rec.level.name.padRight(7)}] $time '
-          '${rec.loggerName}: ${rec.message}');
+      final time = rec.time.toIso8601String().substring(11, 19); // HH:mm:ss
+      final line =
+          '[${rec.level.name}] $time ${rec.loggerName}: ${rec.message}';
+
       if (kDebugMode) {
-        // 開發環境：彩色文字
-        debugPrint(line);
+        // 開發環境：純文字輸出
+        print(line);
       }
 
       // SEVERE 以上可上傳遠端

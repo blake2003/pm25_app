@@ -1,15 +1,16 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:logging/logging.dart';
 import 'package:pm25_app/core/firebase_options.dart';
-import 'package:pm25_app/core/loggers/async_log.dart';
 import 'package:pm25_app/core/loggers/error_handler.dart';
 import 'package:pm25_app/core/loggers/log.dart';
 import 'package:pm25_app/core/routes.dart';
 import 'package:pm25_app/core/services/navigation_service.dart';
-import 'package:pm25_app/features/auth/auth.model.dart';
+import 'package:pm25_app/features/auth/model.dart';
 import 'package:pm25_app/ui/widgets/gfwidgets/alert.dart';
 import 'package:provider/provider.dart';
+
+import 'features/aqi/aqi_provider.dart';
+import 'features/news/news_provider.dart';
 
 /// 進入點：負責執行 Flutter App
 void main() async {
@@ -27,13 +28,10 @@ void main() async {
     log.i('Firebase 初始化成功');
   } catch (e, stack) {
     log.e('Firebase 初始化失败', e, stack);
-    // 使用 Logger 記錄嚴重錯誤訊息，避免在 production code 中直接使用 print
-    Logger('FirebaseInit').severe('Firebase 初始化失敗', e);
     // FirebaseCrashlytics.instance.recordError(e, null, fatal: true);
   }
 
-  // 全域日誌與錯誤處理設定
-  setupGlobalLogging();
+  // 全域錯誤處理設定
   setupGlobalErrorHandlers();
 
   // MultiProvider 注入所有 ChangeNotifier
@@ -65,6 +63,12 @@ void main() async {
             return model;
           },
         ),
+        ChangeNotifierProvider(
+          create: (_) => AqiProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => NewsProvider(),
+        ),
 
         Provider<NavigationService>(
           create: (_) => NavigationService(),
@@ -88,14 +92,17 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: '空氣品質監測地區',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+      ),
       debugShowCheckedModeBanner: false,
       // 首頁改成依照是否已登入決定可用 SignInModel
 
       // 2️⃣ 把 navigatorKey 傳進去，讓全 app 都用這把 Key 來導航
       navigatorKey: navService.navigatorKey,
       // 3️⃣ 使用 NavigatorService 的路由表
-      initialRoute: AppRoutes.signIn,
+      initialRoute: AppRoutes.guide,
       routes: appRouteTable,
     );
   }

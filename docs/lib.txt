@@ -1,0 +1,42 @@
+lib/
+├─ core/                      # 全域工具與設定
+│  ├─ theme.dart              # 主題樣式（可合併）
+│  ├─ firebase_options.dart   # Firebase 設定
+│  ├─ logger.dart             # Log 工具（簡化為單一檔）
+│  ├─ network.dart            # API 客戶端 + 攔截器封裝
+│  ├─ storage.dart            # LocalStorage & Cache 封裝
+│  ├─ services/
+│  │  └─ navigation_service.dart
+│  ├─ constants/
+│  │  └─ app_colors.dart
+│  ├─ storage/
+│  │  └─ auth_local_storage.dart
+│  ├─ utils/
+│  │  └─ validator.dart
+│  └─ loggers/
+│     ├─ auth_log.dart
+│     └─ log.dart
+├─ features/                  # 各功能模組
+│  ├─ auth/                   # 認證模組
+│  │  ├─ auth_service.dart    # 登入註冊邏輯
+│  │  ├─ auth_provider.dart   # 狀態管理
+│  │  └─ auth_model.dart      # 資料模型
+│  │  └─ auth.model.dart      # 資料模型（實際存在）
+│  ├─ aqi/                    # 空氣品質模組
+│  └─ settings/               # 偏好設定模組
+├─ models/                    # 共用資料模型
+├─ ui/                        # 共用 UI 元件
+│  ├─ app_bar.dart
+│  ├─ bottom_nav.dart
+│  ├─ widgets/                # 可重用元件集
+│  │  └─ gfalert.dart
+│  ├─ extensions/
+│  │  └─ no_account_text.dart
+│  ├─ screens/
+│  │  ├─ home_screen.dart
+│  │  └─ auth_screens.dart/
+│  │     ├─ sign_up_screen.dart
+│  │     ├─ sign_in_screen.dart
+│  │     └─ forgot_password_screen.dart
+│  └─ pages/
+├─ main.dart
