@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:logger/logger.dart';
+import 'package:pm25_app/core/constants/app_colors.dart';
 import 'package:pm25_app/core/loggers/log.dart';
+import 'package:pm25_app/features/settings/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -17,9 +20,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // 設定狀態
   bool _notificationsEnabled = true;
-  bool _darkModeEnabled = false;
   String _selectedLanguage = '繁體中文';
-  String _selectedTheme = '自動';
 
   // 語言選項
   final List<String> _languages = [
@@ -61,7 +62,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: const Text('設定'),
         backgroundColor: CupertinoColors.systemBackground.resolveFrom(context),
         border: null,
       ),
@@ -82,17 +82,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// 建立區段標題
   Widget _buildSectionHeader(String title) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: CupertinoColors.systemGrey.resolveFrom(context),
-          letterSpacing: 0.5,
-        ),
-      ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color:
+                  AppColors.getTextColor('secondary', themeProvider.themeMode),
+              letterSpacing: 0.5,
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -120,33 +125,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           _buildDivider(),
 
-          // 主題設定
-          _buildSettingsRow(
-            icon: CupertinoIcons.paintbrush,
-            title: '主題',
-            subtitle: _selectedTheme,
-            onTap: () => _showThemePicker(),
-          ),
-
-          _buildDivider(),
-
-          // 深色模式
-          _buildSwitchRow(
-            icon: CupertinoIcons.moon,
-            title: '深色模式',
-            subtitle: '使用深色主題',
-            value: _darkModeEnabled,
-            onChanged: (value) {
-              setState(() {
-                _darkModeEnabled = value;
-              });
-              _saveSettings();
-              _log.i('深色模式設定變更: $value');
+          // 深色模式設定
+          //TODO: 應該使用小彈窗來顯示，取代跳轉頁面
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return _buildSettingsRow(
+                icon: CupertinoIcons.moon,
+                title: '外觀',
+                subtitle: _getThemeModeDescription(themeProvider),
+                onTap: () => _showThemePicker(),
+              );
             },
           ),
         ],
       ),
     );
+  }
+
+  /// 獲取當前主題模式描述
+  String _getThemeModeDescription(ThemeProvider themeProvider) {
+    try {
+      switch (themeProvider.themeMode) {
+        case AppThemeMode.light:
+          return '淺色';
+        case AppThemeMode.dark:
+          return '深色';
+        case AppThemeMode.system:
+          return '自動';
+      }
+    } catch (e) {
+      _log.w('無法獲取主題模式，使用預設描述');
+      return '跟隨系統';
+    }
   }
 
   /// 建立通知設定區段
@@ -272,62 +282,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
-      onPressed: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: CupertinoColors.systemGrey5.resolveFrom(context),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                icon,
-                size: 18,
-                color: CupertinoColors.systemGrey.resolveFrom(context),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: CupertinoColors.label,
-                    ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: AppColors.getSystemColor(
+                        'systemGrey5', themeProvider.themeMode),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: CupertinoColors.systemGrey.resolveFrom(context),
-                    ),
+                  child: Icon(
+                    icon,
+                    size: 18,
+                    color: AppColors.getSystemColor(
+                        'systemGrey', themeProvider.themeMode),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.getTextColor(
+                              'label', themeProvider.themeMode),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.getTextColor(
+                              'secondary', themeProvider.themeMode),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 16,
+                  color: AppColors.getSystemColor(
+                      'systemGrey3', themeProvider.themeMode),
+                ),
+              ],
             ),
-            Icon(
-              CupertinoIcons.chevron_right,
-              size: 16,
-              color: CupertinoColors.systemGrey3.resolveFrom(context),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
   /// 建立開關列
+  /// TODO: 考慮是否抽出管理，關關列可能會在其他頁面重複使用
   Widget _buildSwitchRow({
     required IconData icon,
     required String title,
@@ -335,63 +355,76 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: CupertinoColors.systemGrey5.resolveFrom(context),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              icon,
-              size: 18,
-              color: CupertinoColors.systemGrey.resolveFrom(context),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: CupertinoColors.label,
-                  ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: AppColors.getSystemColor(
+                      'systemGrey5', themeProvider.themeMode),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: CupertinoColors.systemGrey.resolveFrom(context),
-                  ),
+                child: Icon(
+                  icon,
+                  size: 18,
+                  color: AppColors.getSystemColor(
+                      'systemGrey', themeProvider.themeMode),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.getTextColor(
+                            'label', themeProvider.themeMode),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.getTextColor(
+                            'secondary', themeProvider.themeMode),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              CupertinoSwitch(
+                value: value,
+                onChanged: onChanged,
+                activeColor: CupertinoColors.activeBlue,
+              ),
+            ],
           ),
-          CupertinoSwitch(
-            value: value,
-            onChanged: onChanged,
-            activeColor: CupertinoColors.activeBlue,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   /// 建立分隔線
   Widget _buildDivider() {
-    return Container(
-      margin: const EdgeInsets.only(left: 44),
-      height: 0.5,
-      color: CupertinoColors.separator.resolveFrom(context),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Container(
+          margin: const EdgeInsets.only(left: 44),
+          height: 0.5,
+          color:
+              AppColors.getSystemColor('systemGrey4', themeProvider.themeMode),
+        );
+      },
     );
   }
 
@@ -400,138 +433,225 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _log.d('開啟語言選擇器');
     showCupertinoModalPopup(
       context: context,
-      builder: (context) => Container(
-        height: 300,
-        decoration: const BoxDecoration(
-          color: CupertinoColors.systemBackground,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: CupertinoColors.separator.resolveFrom(context),
-                  ),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('取消'),
-                  ),
-                  const Text(
-                    '選擇語言',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+      builder: (context) => Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return Container(
+            height: 300,
+            decoration: BoxDecoration(
+              color: AppColors.getColor('background', themeProvider.themeMode),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: AppColors.getSystemColor(
+                            'systemGrey4', themeProvider.themeMode),
+                      ),
                     ),
                   ),
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      setState(() {
-                        _selectedLanguage = _languages.first;
-                      });
-                      _saveSettings();
-                      Navigator.pop(context);
-                      _log.i('語言設定變更: $_selectedLanguage');
-                    },
-                    child: const Text('確定'),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          '取消',
+                          style: TextStyle(
+                            color: AppColors.getTextColor(
+                                'primary', themeProvider.themeMode),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '選擇語言',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.getTextColor(
+                              'primary', themeProvider.themeMode),
+                        ),
+                      ),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          setState(() {
+                            _selectedLanguage = _languages.first;
+                          });
+                          _saveSettings();
+                          Navigator.pop(context);
+                          _log.i('語言設定變更: $_selectedLanguage');
+                        },
+                        child: Text(
+                          '確定',
+                          style: TextStyle(
+                            color: AppColors.getTextColor(
+                                'primary', themeProvider.themeMode),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                Expanded(
+                  child: CupertinoPicker(
+                    itemExtent: 50,
+                    onSelectedItemChanged: (index) {
+                      setState(() {
+                        _selectedLanguage = _languages[index];
+                      });
+                    },
+                    children: _languages
+                        .map((language) => Center(
+                              child: Text(
+                                language,
+                                style: TextStyle(
+                                  color: AppColors.getTextColor(
+                                      'primary', themeProvider.themeMode),
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                ),
+              ],
             ),
-            Expanded(
-              child: CupertinoPicker(
-                itemExtent: 50,
-                onSelectedItemChanged: (index) {
-                  setState(() {
-                    _selectedLanguage = _languages[index];
-                  });
-                },
-                children: _languages
-                    .map((language) => Center(child: Text(language)))
-                    .toList(),
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
   /// 顯示主題選擇器
+  //TODO: 考慮是否將彈窗顯示在畫面中間，而不是在畫面下方，這樣可以讓使用者更清楚的看到選擇器
+  //TODO: 應該當使用者選擇主題後，直接儲存，而不是需要點擊確定
+  //TODO: 應該抽出管理？
   void _showThemePicker() {
     _log.d('開啟主題選擇器');
+
+    // 獲取當前的 ThemeProvider
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    int selectedIndex = 0;
+
+    // 根據當前主題模式設定初始選中索引
+    switch (themeProvider.themeMode) {
+      case AppThemeMode.light:
+        selectedIndex = 1;
+        break;
+      case AppThemeMode.dark:
+        selectedIndex = 2;
+        break;
+      case AppThemeMode.system:
+        selectedIndex = 0;
+        break;
+    }
     showCupertinoModalPopup(
       context: context,
-      builder: (context) => Container(
-        height: 300,
-        decoration: const BoxDecoration(
-          color: CupertinoColors.systemBackground,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: CupertinoColors.separator.resolveFrom(context),
-                  ),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('取消'),
-                  ),
-                  const Text(
-                    '選擇主題',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+      builder: (context) => Consumer<ThemeProvider>(
+        builder: (context, currentThemeProvider, child) {
+          return Container(
+            height: 300,
+            decoration: BoxDecoration(
+              color: AppColors.getColor(
+                  'background', currentThemeProvider.themeMode),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: AppColors.getSystemColor(
+                            'systemGrey4', currentThemeProvider.themeMode),
+                      ),
                     ),
                   ),
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      setState(() {
-                        _selectedTheme = _themes.first;
-                      });
-                      _saveSettings();
-                      Navigator.pop(context);
-                      _log.i('主題設定變更: $_selectedTheme');
-                    },
-                    child: const Text('確定'),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          '取消',
+                          style: TextStyle(),
+                        ),
+                      ),
+                      Text(
+                        '選擇主題',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.getColor(
+                              'error', currentThemeProvider.themeMode),
+                        ),
+                      ),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          // 根據選中的索引切換主題
+                          AppThemeMode selectedMode;
+                          switch (selectedIndex) {
+                            case 0:
+                              selectedMode = AppThemeMode.system;
+                              break;
+                            case 1:
+                              selectedMode = AppThemeMode.light;
+                              break;
+                            case 2:
+                              selectedMode = AppThemeMode.dark;
+                              break;
+                            default:
+                              selectedMode = AppThemeMode.system;
+                          }
+                          // 切換主題
+                          themeProvider.toggleTheme(selectedMode);
+                          Navigator.pop(context);
+                          _log.i('主題設定變更: ${_themes[selectedIndex]}');
+                        },
+                        child: Text(
+                          '確定',
+                          style: TextStyle(),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                Expanded(
+                  child: CupertinoPicker(
+                    itemExtent: 50,
+                    scrollController:
+                        FixedExtentScrollController(initialItem: selectedIndex),
+                    onSelectedItemChanged: (index) {
+                      selectedIndex = index;
+                    },
+                    children: _themes
+                        .map((theme) => Center(
+                              child: Text(
+                                theme,
+                                style: TextStyle(
+                                  color: AppColors.getTextColor('primary',
+                                      currentThemeProvider.themeMode),
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                ),
+              ],
             ),
-            Expanded(
-              child: CupertinoPicker(
-                itemExtent: 50,
-                onSelectedItemChanged: (index) {
-                  setState(() {
-                    _selectedTheme = _themes[index];
-                  });
-                },
-                children:
-                    _themes.map((theme) => Center(child: Text(theme))).toList(),
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

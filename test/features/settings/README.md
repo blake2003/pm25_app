@@ -35,10 +35,12 @@
 ```dart
 class ThemeProvider extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
+  DateTime _lastUpdated = DateTime.now();
   
   ThemeMode get themeMode => _themeMode;
+  DateTime get lastUpdated => _lastUpdated;
   
-  Future<void> loadTheme() async { /* 從 SharedPreferences 讀取 */ }
+  Future<void> loadTheme() async { /* 從 Repository 讀取 */ }
   Future<void> toggleTheme(ThemeMode mode) async { /* 切換主題並儲存 */ }
   void setThemeForTesting(ThemeMode mode) { /* 測試用方法 */ }
 }
@@ -101,18 +103,20 @@ flutter test test/features/settings/darkmode_test.dart --name="場景測試"
    shared_preferences: ^2.2.2
    ```
 
-3. **實現實際的儲存邏輯**:
+3. **實現 Repository 層**:
    ```dart
-   // 在 ThemeProvider 中實現實際的 SharedPreferences 操作
-   final prefs = await SharedPreferences.getInstance();
-   await prefs.setString('themeMode', mode.toString().split('.').last);
+   // 創建 ThemeRepository 封裝 SharedPreferences 操作
+   class ThemeRepository {
+     Future<Map<String, dynamic>> loadThemeSettings() async { /* 實作 */ }
+     Future<void> saveThemeSettings(Map<String, dynamic> settings) async { /* 實作 */ }
+   }
    ```
 
 4. **添加 Mock 測試**:
    ```dart
-   // 使用 mockito 進行更完整的測試
+   // 使用 mockito 進行 Repository 測試
    @GenerateMocks([SharedPreferences])
-   import 'darkmode_test.mocks.dart';
+   import 'theme_repository_test.mocks.dart';
    ```
 
 ## 📝 測試維護
