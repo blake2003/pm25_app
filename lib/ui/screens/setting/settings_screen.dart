@@ -1,8 +1,14 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:pm25_app/core/constants/app_colors.dart';
+import 'package:pm25_app/core/constants/language/l10n/app_localizations.dart';
+import 'package:pm25_app/core/constants/theme/theme_colors.dart';
 import 'package:pm25_app/core/loggers/log.dart';
-import 'package:pm25_app/features/settings/theme_provider.dart';
+import 'package:pm25_app/features/settings/language/language_provider.dart';
+import 'package:pm25_app/features/settings/theme/theme_provider.dart';
+import 'package:pm25_app/ui/screens/setting/normal/language/language_settings_screen.dart';
+import 'package:pm25_app/ui/screens/setting/normal/theme/darkmode.dart';
+// import 'package:pm25_app/ui/widgets/language_selector.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -20,15 +26,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // 設定狀態
   bool _notificationsEnabled = true;
-  String _selectedLanguage = '繁體中文';
+  // String _selectedLanguage = '繁體中文'; // 已移除，改用 LanguageProvider
 
-  // 語言選項
-  final List<String> _languages = [
-    '繁體中文',
-    'English',
-    '日本語',
-    '한국어',
-  ];
+  // 語言選項 - 已移除，改用 LanguageProvider
+  // final List<String> _languages = [
+  //   '繁體中文',
+  //   'English',
+  //   '日本語',
+  //   '한국어',
+  // ];
 
   // 主題選項
   final List<String> _themes = [
@@ -116,24 +122,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Column(
         children: [
           // 語言設定
-          _buildSettingsRow(
-            icon: CupertinoIcons.globe,
-            title: '語言',
-            subtitle: _selectedLanguage,
-            onTap: () => _showLanguagePicker(),
+          Consumer<LanguageProvider>(
+            builder: (context, languageProvider, child) {
+              return _buildSettingsRow(
+                icon: CupertinoIcons.globe,
+                title: AppLocalizations.of(context)?.language ?? '語言',
+                subtitle:
+                    _getCurrentLanguageName(languageProvider.currentLanguage),
+                onTap: () => _navigateToLanguageSettings(),
+              );
+            },
           ),
 
           _buildDivider(),
 
           // 深色模式設定
-          //TODO: 應該使用小彈窗來顯示，取代跳轉頁面
           Consumer<ThemeProvider>(
             builder: (context, themeProvider, child) {
               return _buildSettingsRow(
                 icon: CupertinoIcons.moon,
-                title: '外觀',
+                title: AppLocalizations.of(context)?.theme ?? '外觀',
                 subtitle: _getThemeModeDescription(themeProvider),
-                onTap: () => _showThemePicker(),
+                onTap: () => _navigateToThemeSettings(),
               );
             },
           ),
@@ -147,11 +157,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       switch (themeProvider.themeMode) {
         case AppThemeMode.light:
-          return '淺色';
+          return AppLocalizations.of(context)?.light ?? '淺色';
         case AppThemeMode.dark:
-          return '深色';
-        case AppThemeMode.system:
-          return '自動';
+          return AppLocalizations.of(context)?.dark ?? '深色';
+        case AppThemeMode.auto:
+          return AppLocalizations.of(context)?.auto ?? '自動';
       }
     } catch (e) {
       _log.w('無法獲取主題模式，使用預設描述');
@@ -176,8 +186,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // 通知開關
           _buildSwitchRow(
             icon: CupertinoIcons.bell,
-            title: '推播通知',
-            subtitle: '接收空氣品質提醒',
+            title: AppLocalizations.of(context)?.pushNotification ?? '推播通知',
+            subtitle: AppLocalizations.of(context)?.receiveAirQualityAlert ??
+                '接收空氣品質提醒',
             value: _notificationsEnabled,
             onChanged: (value) {
               setState(() {
@@ -194,8 +205,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           if (_notificationsEnabled) ...[
             _buildSettingsRow(
               icon: CupertinoIcons.settings,
-              title: '通知設定',
-              subtitle: '自訂通知內容',
+              title:
+                  AppLocalizations.of(context)?.notificationSettings ?? '通知設定',
+              subtitle:
+                  AppLocalizations.of(context)?.customizeNotificationContent ??
+                      '自訂通知內容',
               onTap: () {
                 _log.d('開啟通知設定頁面');
                 // TODO: 導航到詳細通知設定頁面
@@ -224,7 +238,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // 版本資訊
           _buildSettingsRow(
             icon: CupertinoIcons.info_circle,
-            title: '版本',
+            title: AppLocalizations.of(context)?.version ?? '版本',
             subtitle: '1.0.0',
             onTap: () {
               _log.d('查看版本詳細資訊');
@@ -237,8 +251,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // 隱私政策
           _buildSettingsRow(
             icon: CupertinoIcons.shield,
-            title: '隱私政策',
-            subtitle: '查看隱私保護說明',
+            title: AppLocalizations.of(context)!.privacypolicy,
+            subtitle:
+                AppLocalizations.of(context)?.viewPrivacyPolicy ?? '查看隱私保護說明',
             onTap: () {
               _log.d('開啟隱私政策');
               // TODO: 導航到隱私政策頁面
@@ -405,7 +420,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               CupertinoSwitch(
                 value: value,
                 onChanged: onChanged,
-                activeColor: CupertinoColors.activeBlue,
+                activeTrackColor: CupertinoColors.activeBlue,
               ),
             ],
           ),
@@ -428,109 +443,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  /// 顯示語言選擇器
-  void _showLanguagePicker() {
-    _log.d('開啟語言選擇器');
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => Consumer<ThemeProvider>(
-        builder: (context, themeProvider, child) {
-          return Container(
-            height: 300,
-            decoration: BoxDecoration(
-              color: AppColors.getColor('background', themeProvider.themeMode),
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: AppColors.getSystemColor(
-                            'systemGrey4', themeProvider.themeMode),
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () => Navigator.pop(context),
-                        child: Text(
-                          '取消',
-                          style: TextStyle(
-                            color: AppColors.getTextColor(
-                                'primary', themeProvider.themeMode),
-                          ),
-                        ),
-                      ),
-                      Text(
-                        '選擇語言',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.getTextColor(
-                              'primary', themeProvider.themeMode),
-                        ),
-                      ),
-                      CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () {
-                          setState(() {
-                            _selectedLanguage = _languages.first;
-                          });
-                          _saveSettings();
-                          Navigator.pop(context);
-                          _log.i('語言設定變更: $_selectedLanguage');
-                        },
-                        child: Text(
-                          '確定',
-                          style: TextStyle(
-                            color: AppColors.getTextColor(
-                                'primary', themeProvider.themeMode),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: CupertinoPicker(
-                    itemExtent: 50,
-                    onSelectedItemChanged: (index) {
-                      setState(() {
-                        _selectedLanguage = _languages[index];
-                      });
-                    },
-                    children: _languages
-                        .map((language) => Center(
-                              child: Text(
-                                language,
-                                style: TextStyle(
-                                  color: AppColors.getTextColor(
-                                      'primary', themeProvider.themeMode),
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ))
-                        .toList(),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+  /// 導航到語言設定頁面
+  void _navigateToLanguageSettings() {
+    _log.d('導航到語言設定頁面');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LanguageSettingsScreen(),
       ),
     );
+  }
+
+  /// 取得當前語言名稱
+  String _getCurrentLanguageName(String languageCode) {
+    switch (languageCode) {
+      case 'en':
+        return 'English';
+      case 'zh_TW':
+        return '繁體中文';
+      default:
+        return languageCode;
+    }
   }
 
   /// 顯示主題選擇器
   //TODO: 考慮是否將彈窗顯示在畫面中間，而不是在畫面下方，這樣可以讓使用者更清楚的看到選擇器
   //TODO: 應該當使用者選擇主題後，直接儲存，而不是需要點擊確定
+  /// 導航到主題設定頁面
+  void _navigateToThemeSettings() {
+    _log.d('導航到主題設定頁面');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const DarkModeSettingsPage(),
+      ),
+    );
+  }
+
   //TODO: 應該抽出管理？
   void _showThemePicker() {
     _log.d('開啟主題選擇器');
@@ -547,7 +496,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case AppThemeMode.dark:
         selectedIndex = 2;
         break;
-      case AppThemeMode.system:
+      case AppThemeMode.auto:
         selectedIndex = 0;
         break;
     }
@@ -602,7 +551,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           AppThemeMode selectedMode;
                           switch (selectedIndex) {
                             case 0:
-                              selectedMode = AppThemeMode.system;
+                              selectedMode = AppThemeMode.auto;
                               break;
                             case 1:
                               selectedMode = AppThemeMode.light;
@@ -611,7 +560,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               selectedMode = AppThemeMode.dark;
                               break;
                             default:
-                              selectedMode = AppThemeMode.system;
+                              selectedMode = AppThemeMode.auto;
                           }
                           // 切換主題
                           themeProvider.toggleTheme(selectedMode);

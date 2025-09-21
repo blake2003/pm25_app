@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pm25_app/core/constants/language/l10n/app_localizations.dart';
 import 'package:pm25_app/core/loggers/log.dart';
 import 'package:pm25_app/features/news/debug_service.dart';
 import 'package:pm25_app/features/news/model.dart';
@@ -112,7 +113,7 @@ class _NewsScreenState extends State<NewsScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('最新消息'),
+                Text(AppLocalizations.of(context)?.latestNews ?? '最新消息'),
                 Text(
                   updateTime,
                   style: const TextStyle(

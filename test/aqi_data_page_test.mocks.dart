@@ -46,29 +46,29 @@ class MockAqiProvider extends _i1.Mock implements _i2.AqiProvider {
       ) as bool);
 
   @override
-  List<_i3.AqiRecord> get recentThreeHoursRecords => (super.noSuchMethod(
-        Invocation.getter(#recentThreeHoursRecords),
+  List<_i3.AqiRecord> get filteredRecords => (super.noSuchMethod(
+        Invocation.getter(#filteredRecords),
         returnValue: <_i3.AqiRecord>[],
       ) as List<_i3.AqiRecord>);
 
   @override
-  int get recentThreeHoursCount => (super.noSuchMethod(
-        Invocation.getter(#recentThreeHoursCount),
+  int get filteredRecordsCount => (super.noSuchMethod(
+        Invocation.getter(#filteredRecordsCount),
         returnValue: 0,
       ) as int);
 
   @override
-  double get recentThreeHoursAveragePm25 => (super.noSuchMethod(
-        Invocation.getter(#recentThreeHoursAveragePm25),
+  double get filteredRecordsAveragePm25 => (super.noSuchMethod(
+        Invocation.getter(#filteredRecordsAveragePm25),
         returnValue: 0.0,
       ) as double);
 
   @override
-  String get recentThreeHoursTimeRange => (super.noSuchMethod(
-        Invocation.getter(#recentThreeHoursTimeRange),
+  String get filteredRecordsTimeRange => (super.noSuchMethod(
+        Invocation.getter(#filteredRecordsTimeRange),
         returnValue: _i4.dummyValue<String>(
           this,
-          Invocation.getter(#recentThreeHoursTimeRange),
+          Invocation.getter(#filteredRecordsTimeRange),
         ),
       ) as String);
 

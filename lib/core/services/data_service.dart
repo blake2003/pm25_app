@@ -8,8 +8,9 @@ class DataService {
   final log = AppLogger('DataService');
   final _client = http.Client();
 
+  // 目前上限是1000筆資料，暫時無法取得更多資料
   static const String _apiUrl =
-      'https://data.moenv.gov.tw/api/v2/aqx_p_02?language=zh&offset=0&limit=300&api_key=3c05acd8-b777-43bd-ab28-c72ea6cbcc5b';
+      'https://data.moenv.gov.tw/api/v2/aqx_p_02?language=zh&offset=3&limit=1000&api_key=3c05acd8-b777-43bd-ab28-c72ea6cbcc5b';
 
   // 傳入 sitename，回傳篩選後的資料
   Future<List<dynamic>> fetchSiteData(String site) async {
@@ -41,4 +42,4 @@ class DataService {
   }
 }
 
-//TODO: 檢查資料抓取問題，無法抓取資料
+//TODO: 研究Exception有什麼類別，以便於處理不同的錯誤

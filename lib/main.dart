@@ -1,18 +1,22 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:pm25_app/core/constants/language/l10n/app_localizations.dart';
+import 'package:pm25_app/core/constants/theme/app_theme.dart';
 import 'package:pm25_app/core/firebase_options.dart';
 import 'package:pm25_app/core/loggers/error_handler.dart';
 import 'package:pm25_app/core/loggers/log.dart';
 import 'package:pm25_app/core/routes.dart';
 import 'package:pm25_app/core/services/navigation_service.dart';
-import 'package:pm25_app/core/theme/app_theme.dart';
 import 'package:pm25_app/features/auth/model.dart';
-import 'package:pm25_app/features/settings/theme_provider.dart';
+import 'package:pm25_app/features/settings/language/language_provider.dart';
+import 'package:pm25_app/features/settings/theme/theme_provider.dart';
 import 'package:pm25_app/ui/widgets/gfwidgets/alert.dart';
 import 'package:provider/provider.dart';
 
 import 'features/aqi/aqi_provider.dart';
 import 'features/news/news_provider.dart';
+import 'features/site_management/site_management_provider.dart';
 
 /// 進入點：負責執行 Flutter App
 void main() async {
@@ -74,6 +78,12 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => ThemeProvider()..loadTheme(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => SiteManagementProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LanguageProvider()..initializeLanguage(),
+        ),
 
         Provider<NavigationService>(
           create: (_) => NavigationService(),
@@ -95,16 +105,34 @@ class MyApp extends StatelessWidget {
     // 1️⃣ 從 Provider 拿到同一個 NavigationService
     final navService = Provider.of<NavigationService>(context, listen: false);
 
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
+    return Consumer2<ThemeProvider, LanguageProvider>(
+      builder: (context, themeProvider, languageProvider, child) {
+        // 獲取解析後的主題模式，確保自動模式下使用正確的顏色配置
+        final resolvedThemeMode = themeProvider.resolvedThemeMode;
+
         return MaterialApp(
-          title: '空氣品質監測地區',
+          // 替換前
+          title: AppLocalizations.of(context)?.appTitle ?? 'PM2.5 Air Quality',
           //TODO:檢查是否需要主題配置，若是不需要就要刪除主題配置
-          theme: AppTheme.buildLightTheme(),
-          darkTheme: AppTheme.buildDarkTheme(),
+          theme: AppTheme.buildLightTheme(resolvedThemeMode),
+          darkTheme: AppTheme.buildDarkTheme(resolvedThemeMode),
           themeMode: themeProvider.flutterThemeMode,
           debugShowCheckedModeBanner: false,
           // 首頁改成依照是否已登入決定可用 SignInModel
+
+          // 多語言支援
+          locale: languageProvider.currentLocale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en'), // English
+            Locale('zh'), // Simplified Chinese
+            Locale('zh', 'TW'), // Traditional Chinese
+          ],
 
           // 2️⃣ 把 navigatorKey 傳進去，讓全 app 都用這把 Key 來導航
           navigatorKey: navService.navigatorKey,

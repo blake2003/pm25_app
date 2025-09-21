@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:pm25_app/core/constants/language/l10n/app_localizations.dart';
+import 'package:pm25_app/core/constants/pm25_color.dart';
 import 'package:pm25_app/core/loggers/log.dart';
 import 'package:pm25_app/features/aqi/aqi_provider.dart';
 import 'package:pm25_app/features/aqi/aqi_record%EF%BC%BFmodel.dart';
@@ -8,21 +10,90 @@ import 'package:provider/provider.dart';
 class AqiDataPage extends StatelessWidget {
   const AqiDataPage({super.key});
 
+  /// 顯示時間過濾選擇器
+  void _showTimeFilterPicker(BuildContext context, AqiProvider aqiProvider) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        title: Text(AppLocalizations.of(context)!.selectTimeRange),
+        message: Text(AppLocalizations.of(context)!.selectTimeRangeMessage),
+        actions: aqiProvider.availableTimeFilters.map((option) {
+          return CupertinoActionSheetAction(
+            onPressed: () {
+              aqiProvider.setTimeFilter(option);
+              Navigator.pop(context);
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(option.label),
+                if (option == aqiProvider.selectedTimeFilter)
+                  const Icon(
+                    CupertinoIcons.check_mark,
+                    color: CupertinoColors.systemBlue,
+                    size: 16,
+                  ),
+              ],
+            ),
+          );
+        }).toList(),
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(context),
+          child: Text(AppLocalizations.of(context)!.cancel),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final log = AppLogger('AqiDataScreen');
     log.d('顯示 AQI 資料檢視頁面');
 
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
+      navigationBar: CupertinoNavigationBar(
         middle: Text(
-          'AQI 資料檢視',
+          AppLocalizations.of(context)!.aqiDataView,
           style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w600,
           ),
         ),
         backgroundColor: CupertinoColors.systemBackground,
+        trailing: Consumer<AqiProvider>(
+          builder: (context, aqiProvider, child) {
+            return CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                _showTimeFilterPicker(context, aqiProvider);
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    CupertinoIcons.clock_fill,
+                    size: 20,
+                    color: CupertinoColors.systemBlue,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    aqiProvider.selectedTimeFilter.label,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: CupertinoColors.systemBlue,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  Icon(
+                    CupertinoIcons.chevron_down,
+                    size: 12,
+                    color: CupertinoColors.systemBlue,
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
       child: SafeArea(
         child: Consumer<AqiProvider>(
@@ -47,7 +118,7 @@ class AqiDataPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      '載入資料失敗',
+                      AppLocalizations.of(context)!.loadDataFailed,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -59,7 +130,7 @@ class AqiDataPage extends StatelessWidget {
                       aqiProvider.error!,
                       style: TextStyle(
                         fontSize: 14,
-                        color: CupertinoColors.secondaryLabel,
+                        color: CupertinoColors.systemGrey,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -68,7 +139,7 @@ class AqiDataPage extends StatelessWidget {
               );
             }
 
-            final records = aqiProvider.recentThreeHoursRecords;
+            final records = aqiProvider.filteredRecords;
 
             if (records.isEmpty) {
               return Center(
@@ -82,7 +153,7 @@ class AqiDataPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      '暫無資料',
+                      AppLocalizations.of(context)!.noData,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -91,10 +162,10 @@ class AqiDataPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '目前沒有最近三小時的 AQI 資料',
+                      AppLocalizations.of(context)!.noDataMessage,
                       style: TextStyle(
                         fontSize: 14,
-                        color: CupertinoColors.secondaryLabel,
+                        color: CupertinoColors.systemGrey,
                       ),
                     ),
                   ],
@@ -121,7 +192,7 @@ class AqiDataPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '最近三小時資料',
+                        aqiProvider.selectedTimeRangeDescription,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -139,7 +210,8 @@ class AqiDataPage extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            '共 ${records.length} 筆資料',
+                            AppLocalizations.of(context)!
+                                .totalRecords(records.length),
                             style: TextStyle(
                               fontSize: 14,
                               color: CupertinoColors.secondaryLabel,
@@ -159,7 +231,7 @@ class AqiDataPage extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            aqiProvider.recentThreeHoursTimeRange,
+                            aqiProvider.filteredRecordsTimeRange,
                             style: TextStyle(
                               fontSize: 14,
                               color: CupertinoColors.secondaryLabel,
@@ -168,6 +240,73 @@ class AqiDataPage extends StatelessWidget {
                           ),
                         ],
                       ),
+                      // 新增除錯資訊
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: CupertinoColors.systemGrey6,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              CupertinoIcons.info_circle,
+                              size: 14,
+                              color: CupertinoColors.systemGrey,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                AppLocalizations.of(context)!.originalData(
+                                    aqiProvider.records.length, records.length),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: CupertinoColors.systemGrey,
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (aqiProvider.records.length > records.length) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color:
+                                CupertinoColors.systemOrange.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color:
+                                  CupertinoColors.systemOrange.withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                CupertinoIcons.exclamationmark_triangle,
+                                size: 14,
+                                color: CupertinoColors.systemOrange,
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  AppLocalizations.of(context)!
+                                      .dataFilteredWarning,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: CupertinoColors.systemOrange,
+                                    decoration: TextDecoration.none,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -178,7 +317,8 @@ class AqiDataPage extends StatelessWidget {
                     itemCount: records.length,
                     itemBuilder: (context, index) {
                       final record = records[index];
-                      return _buildAqiRecordCard(record, index);
+                      return _buildAqiRecordCard(
+                          context, record, index, aqiProvider);
                     },
                   ),
                 ),
@@ -191,9 +331,14 @@ class AqiDataPage extends StatelessWidget {
   }
 
   /// 建立 AQI 記錄卡片
-  Widget _buildAqiRecordCard(AqiRecord record, int index) {
-    final pm25Color = _getPm25Color(record.pm25);
-    final pm25Level = _getPm25Level(record.pm25);
+  Widget _buildAqiRecordCard(BuildContext context, AqiRecord record, int index,
+      AqiProvider aqiProvider) {
+    final pm25Color = PM25Color.getPm25Color(record.pm25);
+    final pm25Level = PM25Color.getPm25Level(record.pm25);
+
+    final isInSelectedTimeRange =
+        aqiProvider.isRecordInSelectedTimeRange(record);
+    final hasTimeFilter = aqiProvider.selectedTimeFilter.duration != null;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -219,14 +364,37 @@ class AqiDataPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '記錄 #${index + 1}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: CupertinoColors.label,
-                  decoration: TextDecoration.none,
-                ),
+              Row(
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.recordNumber(index + 1),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: CupertinoColors.label,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                  if (hasTimeFilter && !isInSelectedTimeRange) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.systemGrey.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.older,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: CupertinoColors.systemGrey,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
               Container(
                 padding:
@@ -269,7 +437,7 @@ class AqiDataPage extends StatelessWidget {
               children: [
                 // PM2.5 標籤
                 Text(
-                  'PM2.5',
+                  AppLocalizations.of(context)!.pm25Label,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -298,7 +466,8 @@ class AqiDataPage extends StatelessWidget {
               Expanded(
                 child: _buildDataItem(
                   icon: CupertinoIcons.location_fill,
-                  label: '站點',
+                  label: AppLocalizations.of(context)!.site,
+                  //TODO: 需要翻譯 value
                   value: record.site,
                   color: const Color(0xFF007AFF),
                 ),
@@ -307,7 +476,7 @@ class AqiDataPage extends StatelessWidget {
               Expanded(
                 child: _buildDataItem(
                   icon: CupertinoIcons.map_fill,
-                  label: '縣市',
+                  label: AppLocalizations.of(context)!.county,
                   value: record.county,
                   color: const Color(0xFF34C759),
                 ),
@@ -321,7 +490,7 @@ class AqiDataPage extends StatelessWidget {
               Expanded(
                 child: _buildDataItem(
                   icon: CupertinoIcons.time_solid,
-                  label: '檢測時間',
+                  label: AppLocalizations.of(context)!.detectionTime,
                   value: _formatDateTime(record.datacreationdate),
                   color: const Color(0xFFAF52DE),
                 ),
@@ -330,7 +499,7 @@ class AqiDataPage extends StatelessWidget {
               Expanded(
                 child: _buildDataItem(
                   icon: CupertinoIcons.info_circle_fill,
-                  label: '健康等級',
+                  label: AppLocalizations.of(context)!.healthLevel,
                   value: pm25Level,
                   color: pm25Color,
                 ),
@@ -387,21 +556,5 @@ class AqiDataPage extends StatelessWidget {
         '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
-  /// 根據 PM2.5 數值獲取顏色
-  Color _getPm25Color(int pm25) {
-    if (pm25 <= 12) return CupertinoColors.systemGreen;
-    if (pm25 <= 35) return CupertinoColors.systemYellow;
-    if (pm25 <= 55) return CupertinoColors.systemOrange;
-    if (pm25 <= 150) return CupertinoColors.systemRed;
-    return CupertinoColors.systemPurple;
-  }
-
-  /// 根據 PM2.5 數值獲取等級
-  String _getPm25Level(int pm25) {
-    if (pm25 <= 12) return '良好';
-    if (pm25 <= 35) return '普通';
-    if (pm25 <= 55) return '對敏感族群不健康';
-    if (pm25 <= 150) return '對所有族群不健康';
-    return '非常不健康';
-  }
+  // PM2.5 相關方法已移至 PM25Utils 工具類別
 }

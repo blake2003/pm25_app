@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:pm25_app/core/constants/language/l10n/app_localizations.dart';
 import 'package:pm25_app/features/auth/auth_service.dart';
 import 'package:pm25_app/ui/screens/auth/sign_in_screen.dart';
+import 'package:pm25_app/ui/screens/demo/language_demo_screen.dart';
 import 'package:pm25_app/ui/screens/guide/guide_page.dart';
 import 'package:pm25_app/ui/screens/main/home_screen.dart';
 
@@ -19,13 +21,18 @@ class GfDrawer extends StatelessWidget {
           const DrawerHeaderWidget(),
           DrawerListTile(
             leading: const Icon(Icons.home, color: GFColors.PRIMARY),
-            title: '首頁',
+            title: AppLocalizations.of(context)!.home,
             onTap: () => _navigateTo(context, const HomeScreen()),
           ),
           DrawerListTile(
             leading: const Icon(Icons.map, color: GFColors.PRIMARY),
-            title: '回導覽頁',
+            title: AppLocalizations.of(context)!.guide,
             onTap: () => _navigateTo(context, const GuideScreen()),
+          ),
+          DrawerListTile(
+            leading: const Icon(Icons.language, color: GFColors.PRIMARY),
+            title: AppLocalizations.of(context)!.language,
+            onTap: () => _navigateTo(context, const LanguageDemoScreen()),
           ),
           FutureBuilder<User?>(
             future: _getCurrentUser(),
@@ -38,14 +45,14 @@ class GfDrawer extends StatelessWidget {
                 // 未登入顯示登入
                 return DrawerListTile(
                   leading: const Icon(Icons.login, color: GFColors.SUCCESS),
-                  title: '登入',
+                  title: AppLocalizations.of(context)!.logIn,
                   onTap: () => _navigateTo(context, const SignInScreen()),
                 );
               } else {
                 // 已登入顯示登出
                 return DrawerListTile(
                   leading: const Icon(Icons.logout, color: GFColors.DANGER),
-                  title: '登出',
+                  title: AppLocalizations.of(context)!.logOut,
                   onTap: () => _handleLogout(context),
                 );
               }

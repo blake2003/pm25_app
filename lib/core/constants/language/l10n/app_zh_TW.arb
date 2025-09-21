@@ -1,0 +1,406 @@
+{
+  "appTitle": "PM2.5 空氣品質",
+  "@appTitle": {
+    "description": "應用程式標題"
+  },
+  "home": "首頁",
+  "@home": {
+    "description": "首頁標題"
+  },
+  "guide": "導覽頁",
+  "@guide": {
+    "description": "導覽頁標題"
+  },
+  "settings": "設定",
+  "@settings": {
+    "description": "設定頁面標題"
+  },
+  "language": "語言",
+  "@language": {
+    "description": "語言設定"
+  },
+  "logIn": "登入",
+  "@logIn": {
+    "description": "登入按鈕或功能"
+  },
+  "logOut": "登出",
+  "@logOut": {
+    "description": "登出按鈕或功能"
+  },
+  "theme": "主題",
+  "@theme": {
+    "description": "主題設定區塊標題"
+  },
+  "airQuality": "空氣品質",
+  "@airQuality": {
+    "description": "空氣品質資料"
+  },
+  "news": "新聞",
+  "@news": {
+    "description": "新聞區塊"
+  },
+  "latestNews": "最新消息",
+  "@latestNews": {
+    "description": "新聞頁面標題"
+  },
+  "selectLanguage": "選擇語言",
+  "@selectLanguage": {
+    "description": "語言選擇對話框標題"
+  },
+  "english": "English",
+  "@english": {
+    "description": "英文語言選項"
+  },
+  "chineseTraditional": "繁體中文",
+  "@chineseTraditional": {
+    "description": "繁體中文語言選項"
+  },
+  "cancel": "取消",
+  "@cancel": {
+    "description": "取消按鈕"
+  },
+  "confirmAction": "確認",
+  "@confirmAction": {
+    "description": "確認按鈕"
+  },
+  "languageChanged": "語言切換成功",
+  "@languageChanged": {
+    "description": "語言切換成功訊息"
+  },
+  "advancedSettings": "進階設定",
+  "@advancedSettings": {
+    "description": "進階設定區塊標題"
+  },
+  "resetToSystemLanguage": "重設為系統語言",
+  "@resetToSystemLanguage": {
+    "description": "重設為系統語言選項"
+  },
+  "useDeviceDefaultLanguage": "使用裝置預設語言",
+  "@useDeviceDefaultLanguage": {
+    "description": "重設為系統語言的說明"
+  },
+  "clearLanguagePreference": "清除語言偏好設定",
+  "@clearLanguagePreference": {
+    "description": "清除語言偏好設定選項"
+  },
+  "removeSavedLanguageSetting": "移除已儲存的語言設定",
+  "@removeSavedLanguageSetting": {
+    "description": "清除語言偏好設定的說明"
+  },
+  "supportedLanguages": "支援的語言",
+  "@supportedLanguages": {
+    "description": "支援語言區塊標題"
+  },
+  "resetToSystemLanguageSuccess": "已成功重設為系統語言",
+  "@resetToSystemLanguageSuccess": {
+    "description": "重設為系統語言成功訊息"
+  },
+  "languagePreferenceClearedSuccess": "語言偏好設定已成功清除",
+  "@languagePreferenceClearedSuccess": {
+    "description": "清除語言偏好設定成功訊息"
+  },
+  "operationFailed": "操作失敗",
+  "@operationFailed": {
+    "description": "通用操作失敗訊息"
+  },
+  "confirmClearLanguagePreference": "您確定要清除語言偏好設定嗎？",
+  "@confirmClearLanguagePreference": {
+    "description": "清除語言偏好設定的確認訊息"
+  },
+  "pushNotification": "推播通知",
+  "@pushNotification": {
+    "description": "通知設定的開關"
+  },
+  "receiveAirQualityAlert": "接收空氣品質提醒",
+  "@receiveAirQualityAlert": {
+    "description": "通知設定區塊中，接收空氣品質提醒的說明"
+  },
+  "notificationSettings": "通知設定",
+  "@notificationSettings": {
+    "description": "通知設定區塊標題"
+  },
+  "customizeNotificationContent": "自訂通知內容",
+  "@customizeNotificationContent": {
+    "description": "通知設定區塊中，自訂通知內容的說明"
+  },
+  "version": "版本",
+  "@version": {
+    "description": "版本標題"
+  },
+  "privacypolicy": "隱私政策",
+  "@privacypolicy": {
+    "description": "隱私政策標題"
+  },
+  "viewPrivacyPolicy": "查看隱私保護說明",
+  "@viewPrivacyPolicy": {
+    "description": "在設定頁面中，顯示於隱私政策項目的副標題"
+  },
+  "appearanceSettings": "外觀設定",
+  "@appearanceSettings": {
+    "description": "外觀設定頁面標題"
+  },
+  "auto": "自動",
+  "@auto": {
+    "description": "自動模式選項"
+  },
+  "switchBasedOnTime": "根據時間自動切換",
+  "@switchBasedOnTime": {
+    "description": "自動模式副標題"
+  },
+  "light": "淺色",
+  "@light": {
+    "description": "淺色模式選項"
+  },
+  "useLightTheme": "使用淺色主題",
+  "@useLightTheme": {
+    "description": "淺色模式副標題"
+  },
+  "dark": "深色",
+  "@dark": {
+    "description": "深色模式選項"
+  },
+  "useDarkTheme": "使用深色主題",
+  "@useDarkTheme": {
+    "description": "深色模式副標題"
+  },
+  "autoSwitchTimeSettings": "自動切換時間設定",
+  "@autoSwitchTimeSettings": {
+    "description": "時間設定標題"
+  },
+  "dayStartTime": "白天開始時間",
+  "@dayStartTime": {
+    "description": "白天開始時間標題"
+  },
+  "lightThemeStartTime": "淺色主題開始時間",
+  "@lightThemeStartTime": {
+    "description": "白天開始時間副標題"
+  },
+  "nightStartTime": "夜晚開始時間",
+  "@nightStartTime": {
+    "description": "夜晚開始時間標題"
+  },
+  "darkThemeStartTime": "深色主題開始時間",
+  "@darkThemeStartTime": {
+    "description": "夜晚開始時間副標題"
+  },
+  "reset": "重置",
+  "@reset": {
+    "description": "重置按鈕文字"
+  },
+  "resetToDefault": "重置為預設",
+  "@resetToDefault": {
+    "description": "重置按鈕文字"
+  },
+  "autoModeDescription": "選擇「自動」模式將根據設定的時間自動切換主題。點擊自動選項可自訂切換時間（使用24小時制）。您也可以手動選擇淺色或深色主題。",
+  "@autoModeDescription": {
+    "description": "自動模式說明文字"
+  },
+  "appVersion": "PM25 空氣品質監測 v1.0.0",
+  "@appVersion": {
+    "description": "應用程式版本資訊"
+  },
+  "setDayStartTime": "設定白天開始時間",
+  "@setDayStartTime": {
+    "description": "設定白天開始時間標題"
+  },
+  "setNightStartTime": "設定夜晚開始時間",
+  "@setNightStartTime": {
+    "description": "設定夜晚開始時間標題"
+  },
+  "done": "完成",
+  "@done": {
+    "description": "完成按鈕文字"
+  },
+  "resetSuccess": "重置成功",
+  "@resetSuccess": {
+    "description": "重置成功標題"
+  },
+  "resetSuccessMessage": "時間設定已重置為預設值（07:00 / 19:00）\n使用24小時制格式",
+  "@resetSuccessMessage": {
+    "description": "重置成功訊息內容"
+  },
+  "ok": "確定",
+  "@ok": {
+    "description": "確定按鈕文字"
+  },
+  "switchingTheme": "切換主題中...",
+  "@switchingTheme": {
+    "description": "主題切換載入中文字"
+  },
+  "themeSwitchSuccess": "主題切換成功",
+  "@themeSwitchSuccess": {
+    "description": "主題切換成功標題"
+  },
+  "themeSwitchSuccessMessage": "已切換到{themeMode}主題",
+  "@themeSwitchSuccessMessage": {
+    "description": "主題切換成功訊息內容",
+    "placeholders": {
+      "themeMode": {
+        "type": "String",
+        "description": "主題模式名稱"
+      }
+    }
+  },
+  "switchFailed": "切換失敗",
+  "@switchFailed": {
+    "description": "切換失敗標題"
+  },
+  "switchFailedMessage": "主題切換失敗，請稍後再試",
+  "@switchFailedMessage": {
+    "description": "切換失敗訊息內容"
+  },
+  "airQualityTitle": "空氣品質",
+  "@airQualityTitle": {
+    "description": "空氣品質標題"
+  },
+  "updatedAt": "（{time} 更新）",
+  "@updatedAt": {
+    "description": "更新時間顯示",
+    "placeholders": {
+      "time": {
+        "type": "Object",
+        "description": "更新時間"
+      }
+    }
+  },
+  "addSite": "添加站點",
+  "@addSite": {
+    "description": "添加站點按鈕"
+  },
+  "deleteSite": "刪除站點",
+  "@deleteSite": {
+    "description": "刪除站點按鈕"
+  },
+  "recentThreeHoursStats": "最近三個小時統計",
+  "@recentThreeHoursStats": {
+    "description": "最近三個小時統計標題"
+  },
+  "dataCount": "資料筆數",
+  "@dataCount": {
+    "description": "資料筆數標籤"
+  },
+  "dataCountUnit": "{count} 筆",
+  "@dataCountUnit": {
+    "description": "資料筆數單位",
+    "placeholders": {
+      "count": {
+        "type": "Object",
+        "description": "資料筆數"
+      }
+    }
+  },
+  "averagePM25": "平均 PM2.5",
+  "@averagePM25": {
+    "description": "平均 PM2.5 標籤"
+  },
+  "timeRange": "時間範圍",
+  "@timeRange": {
+    "description": "時間範圍標籤"
+  },
+  "aqiDataView": "AQI 資料檢視",
+  "@aqiDataView": {
+    "description": "AQI 資料檢視頁面標題"
+  },
+  "selectTimeRange": "選擇時間範圍",
+  "@selectTimeRange": {
+    "description": "選擇時間範圍對話框標題"
+  },
+  "selectTimeRangeMessage": "選擇要顯示的資料時間範圍",
+  "@selectTimeRangeMessage": {
+    "description": "選擇時間範圍對話框訊息"
+  },
+  "loadDataFailed": "載入資料失敗",
+  "@loadDataFailed": {
+    "description": "載入資料失敗標題"
+  },
+  "noData": "暫無資料",
+  "@noData": {
+    "description": "無資料標題"
+  },
+  "noDataMessage": "目前沒有符合時間範圍的 AQI 資料",
+  "@noDataMessage": {
+    "description": "無資料訊息"
+  },
+  "totalRecords": "共 {count} 筆資料",
+  "@totalRecords": {
+    "description": "總資料筆數",
+    "placeholders": {
+      "count": {
+        "type": "Object",
+        "description": "資料筆數"
+      }
+    }
+  },
+  "originalData": "原始資料: {original} 筆 | 過濾後: {filtered} 筆",
+  "@originalData": {
+    "description": "原始資料與過濾後資料對比",
+    "placeholders": {
+      "original": {
+        "type": "Object",
+        "description": "原始資料筆數"
+      },
+      "filtered": {
+        "type": "Object",
+        "description": "過濾後資料筆數"
+      }
+    }
+  },
+  "dataFilteredWarning": "部分資料因超過選定時間範圍而被過濾",
+  "@dataFilteredWarning": {
+    "description": "資料過濾警告訊息"
+  },
+  "recordNumber": "記錄 #{number}",
+  "@recordNumber": {
+    "description": "記錄編號",
+    "placeholders": {
+      "number": {
+        "type": "Object",
+        "description": "記錄編號"
+      }
+    }
+  },
+  "older": "較舊",
+  "@older": {
+    "description": "較舊資料標籤"
+  },
+  "healthLevel": "健康等級",
+  "@healthLevel": {
+    "description": "健康等級標籤"
+  },
+  "site": "站點",
+  "@site": {
+    "description": "站點標籤"
+  },
+  "county": "縣市",
+  "@county": {
+    "description": "縣市標籤"
+  },
+  "detectionTime": "檢測時間",
+  "@detectionTime": {
+    "description": "檢測時間標籤"
+  },
+  "pm25Label": "PM2.5",
+  "@pm25Label": {
+    "description": "PM2.5 標籤"
+  },
+  "delete": "刪除",
+  "@delete": {
+    "description": "刪除按鈕文字"
+  },
+  "deleteFailed": "刪除失敗",
+  "@deleteFailed": {
+    "description": "刪除站點失敗時的標題"
+  },
+  "deleteFailedMessage": "無法刪除站點，至少需保留一個站點。",
+  "@deleteFailedMessage": {
+    "description": "刪除站點失敗時的提示訊息"
+  },
+  "selectRegion": "選擇要添加的地區",
+  "@selectRegion": {
+    "description": "地區選擇對話框標題"
+  },
+  "siteManagement": "站點管理",
+  "@siteManagement": {
+    "description": "站點管理對話框標題"
+  }
+}

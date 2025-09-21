@@ -23,7 +23,7 @@ void main() {
       // 設置 mock 物件返回載入狀態
       when(mockAqiProvider.isLoading).thenReturn(true);
       when(mockAqiProvider.error).thenReturn(null);
-      when(mockAqiProvider.recentThreeHoursRecords).thenReturn([]);
+      when(mockAqiProvider.filteredRecords).thenReturn([]);
 
       await tester.pumpWidget(
         CupertinoApp(
@@ -45,7 +45,7 @@ void main() {
       // 設置 mock 物件返回錯誤狀態
       when(mockAqiProvider.isLoading).thenReturn(false);
       when(mockAqiProvider.error).thenReturn(errorMessage);
-      when(mockAqiProvider.recentThreeHoursRecords).thenReturn([]);
+      when(mockAqiProvider.filteredRecords).thenReturn([]);
 
       await tester.pumpWidget(
         CupertinoApp(
@@ -108,8 +108,8 @@ void main() {
       // 設置 mock 物件返回測試資料
       when(mockAqiProvider.isLoading).thenReturn(false);
       when(mockAqiProvider.error).thenReturn(null);
-      when(mockAqiProvider.recentThreeHoursRecords).thenReturn(testRecords);
-      when(mockAqiProvider.recentThreeHoursTimeRange)
+      when(mockAqiProvider.filteredRecords).thenReturn(testRecords);
+      when(mockAqiProvider.filteredRecordsTimeRange)
           .thenReturn('10:30 - 11:00');
 
       await tester.pumpWidget(
@@ -168,8 +168,8 @@ void main() {
 
       when(mockAqiProvider.isLoading).thenReturn(false);
       when(mockAqiProvider.error).thenReturn(null);
-      when(mockAqiProvider.recentThreeHoursRecords).thenReturn(testRecords);
-      when(mockAqiProvider.recentThreeHoursTimeRange).thenReturn('測試時間');
+      when(mockAqiProvider.filteredRecords).thenReturn(testRecords);
+      when(mockAqiProvider.filteredRecordsTimeRange).thenReturn('測試時間');
 
       await tester.pumpWidget(
         CupertinoApp(

@@ -94,8 +94,8 @@ void main() {
         when(mockRepo.getSiteAqi('金門')).thenAnswer((_) async => fakeData);
         await provider.loadAqi('金門');
 
-        expect(provider.recentThreeHoursCount, 2);
-        expect(provider.recentThreeHoursAveragePm25, 12.5); // (10 + 15) / 2
+        expect(provider.filteredRecordsCount, 2);
+        expect(provider.filteredRecordsAveragePm25, 12.5); // (10 + 15) / 2
       });
 
       test('當沒有最近三個小時的資料時應該返回0', () async {
@@ -113,9 +113,9 @@ void main() {
         when(mockRepo.getSiteAqi('金門')).thenAnswer((_) async => fakeData);
         await provider.loadAqi('金門');
 
-        expect(provider.recentThreeHoursCount, 0);
-        expect(provider.recentThreeHoursAveragePm25, 0.0);
-        expect(provider.recentThreeHoursTimeRange, '暫無資料');
+        expect(provider.filteredRecordsCount, 0);
+        expect(provider.filteredRecordsAveragePm25, 0.0);
+        expect(provider.filteredRecordsTimeRange, '暫無資料');
       });
 
       test('應該正確格式化時間範圍', () async {
@@ -143,7 +143,7 @@ void main() {
         await provider.loadAqi('金門');
 
         // 由於時間是動態的，我們只檢查格式是否正確
-        final timeRange = provider.recentThreeHoursTimeRange;
+        final timeRange = provider.filteredRecordsTimeRange;
         expect(timeRange, isNot('暫無資料'));
         expect(timeRange, contains(' - '));
       });
